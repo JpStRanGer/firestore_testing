@@ -6,7 +6,9 @@
 // --- Firebase SDK (modular) ---
 import { initializeApp, getApps } from "firebase/app";
 import {
-  getFirestore, connectFirestoreEmulator, enableIndexedDbPersistence,
+  getFirestore, connectFirestoreEmulator, initializeFirestore,
+  persistentLocalCache, memoryLocalCache,
+  enableIndexedDbPersistence,
   doc, collection, query, onSnapshot, getDoc, getDocs,
   addDoc, setDoc, updateDoc, deleteDoc, writeBatch, runTransaction,
   serverTimestamp as _serverTimestamp,
@@ -37,19 +39,24 @@ const _unsubs = new Set(); // sporer aktive listeners, for ev. manuell rydding
 export function initFirebase(firebaseConfig, opts = {}) {
   if (!_app) {
     _app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
-    _db = getFirestore(_app);
+    // _db = getFirestore(_app);
+    _db = initializeFirestore(_app, {
+      localCache: opts?.persistence === false
+        ? memoryLocalCache() // ingen offline caching (persistence: false)
+        : persistentLocalCache() // offline caching (default)
+    });
 
     if (opts?.emulator) {
       connectFirestoreEmulator(_db, opts.emulator.host, opts.emulator.port);
     }
 
-    // Slå på offline persistence som standard (kan skippes på SSR)
-    if (opts?.persistence !== false && typeof window !== "undefined") {
-      enableIndexedDbPersistence(_db).catch(() => {
-        // Kan feile i private mode / flere tabs med lyttere.
-        // Bevisst "best effort" – ingen throw; appen fungerer videre online.
-      });
-    }
+    // // Slå på offline persistence som standard (kan skippes på SSR)
+    // if (opts?.persistence !== false && typeof window !== "undefined") {
+    //   enableIndexedDbPersistence(_db).catch(() => {
+    //     // Kan feile i private mode / flere tabs med lyttere.
+    //     // Bevisst "best effort" – ingen throw; appen fungerer videre online.
+    //   });
+    // }
   }
   return { app: _app, db: _db };
 }
