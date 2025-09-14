@@ -34,5 +34,7 @@ async function add() {
         <button @click="removeTodo(t)">Slett</button>
       </li>
     </ul>
+    <!-- hvis ingen todos -->
+    <p v-if="todos && todos.length === 0">Ingen todos enda.</p>
   </section>
 </template>
