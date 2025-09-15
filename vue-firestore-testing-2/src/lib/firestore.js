@@ -6,9 +6,8 @@
 // --- Firebase SDK (modular) ---
 import { initializeApp, getApps } from "firebase/app";
 import {
-  getFirestore, connectFirestoreEmulator, initializeFirestore,
+  connectFirestoreEmulator, initializeFirestore,
   persistentLocalCache, memoryLocalCache,
-  enableIndexedDbPersistence,
   doc, collection, query, onSnapshot, getDoc, getDocs,
   addDoc, setDoc, updateDoc, deleteDoc, writeBatch, runTransaction,
   serverTimestamp as _serverTimestamp,
